@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import LeadSerializer
 from .models import Lead
-from .utils import SCOPES
+from .utils import SCOPES, crawler_pipeline
 
 
 class LeadViewSet(viewsets.ModelViewSet):
@@ -48,9 +48,14 @@ class LeadViewSet(viewsets.ModelViewSet):
 
         service = build('gmail', 'v1', credentials=credentials)
 
-        results = service.users().messages().list(userId='me', q='from:arturbersan@gmail.com').execute()
+        results = service.users().messages().list(
+            userId='me',
+            q='from:arturbersan@gmail.com').execute()
+
+        id_list = [x.get('id') for x in results.get('messages')]
+        leads = crawler_pipeline(service, id_list)
 
         return Response(
-            {'detail': 'found {} leads'.format(len(results.get('messages', [])))},
+            {'detail': leads},
             status.HTTP_200_OK
         )
