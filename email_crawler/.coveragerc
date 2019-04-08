@@ -1,0 +1,23 @@
+[run]
+branch = True
+data_file = coverage_report/.coverage
+omit =
+    */tests.py,
+    */tests_*.py,
+    */*_tests.py,
+    */settings.py,
+    */__init__.py,
+    manage.py,
+    */wsgi.py,
+    */migrations/*
+
+[report]
+show_missing = True
+precision = 2 
+exclude_lines =
+    raise AssertionError,
+    raise NotImplementedError
+
+[html]
+directory = coverage_report/html
+title = "Cobertura de testes - Email Crawler"

@@ -61,6 +61,7 @@ class LeadViewSet(viewsets.ModelViewSet):
             userId='me', q=query_string).execute()
 
         leads = []
+        status_code = status.HTTP_200_OK
         if len(results.get('messages', [])) > 0:
             id_list = [x.get('id') for x in results.get('messages')]
             leads = crawler_pipeline(service, id_list)
@@ -69,8 +70,10 @@ class LeadViewSet(viewsets.ModelViewSet):
                 serialized_data = self.serializer_class(data=leads, many=True)
                 serialized_data.is_valid(raise_exception=True)
                 serialized_data.save()
+        else:
+            status_code = status.HTTP_404_NOT_FOUND
 
         return Response(
             {'detail': 'found {} leads'.format(len(leads))},
-            status.HTTP_200_OK
+            status_code
         )
