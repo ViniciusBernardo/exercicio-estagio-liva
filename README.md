@@ -1,1 +1,3 @@
-# exercicio-estagio-liva
+# Exercício estágio liva
+
+<img src="./images/arquitetura.png">
