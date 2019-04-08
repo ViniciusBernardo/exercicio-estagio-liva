@@ -18,6 +18,8 @@ class LeadViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def search_leads(self, request):
+        from_email = request.query_params.get('from')
+        subject = request.query_params.get('subject')
 
         credentials = None
         module_dir = os.path.dirname(__file__)
@@ -48,16 +50,25 @@ class LeadViewSet(viewsets.ModelViewSet):
 
         service = build('gmail', 'v1', credentials=credentials)
 
+        query_string = 'from:arturbersan@gmail.com subject:Consulta para o imóvel'
+        if from_email or subject:
+            query_string = 'from:{} subject:{}'.format(
+                from_email or 'arturbersan@gmail.com',
+                subject or 'Consulta para o imóvel'
+            )
+
         results = service.users().messages().list(
-            userId='me',
-            q='from:arturbersan@gmail.com').execute()
+            userId='me', q=query_string).execute()
 
-        id_list = [x.get('id') for x in results.get('messages')]
-        leads = crawler_pipeline(service, id_list)
+        leads = []
+        if len(results.get('messages', [])) > 0:
+            id_list = [x.get('id') for x in results.get('messages')]
+            leads = crawler_pipeline(service, id_list)
 
-        serialized_data = self.serializer_class(data=leads, many=True)
-        serialized_data.is_valid(raise_exception=True)
-        serialized_data.save()
+            if len(leads) > 0:
+                serialized_data = self.serializer_class(data=leads, many=True)
+                serialized_data.is_valid(raise_exception=True)
+                serialized_data.save()
 
         return Response(
             {'detail': 'found {} leads'.format(len(leads))},

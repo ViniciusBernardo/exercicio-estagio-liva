@@ -48,7 +48,7 @@ def format_lead_key_values(leads):
             phone = lead.get('phone', '').strip()
             lead['phone'] = phone if phone != 'não informado' else ''
 
-            # extract property code from string inside div
+            # Extract property code from string inside div
             match = REGEX_EXTRACT_PROPERTY_CODE.findall(
                 lead.get('property_code', '')
             )
