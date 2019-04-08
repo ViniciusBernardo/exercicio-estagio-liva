@@ -55,7 +55,11 @@ class LeadViewSet(viewsets.ModelViewSet):
         id_list = [x.get('id') for x in results.get('messages')]
         leads = crawler_pipeline(service, id_list)
 
+        serialized_data = self.serializer_class(data=leads, many=True)
+        serialized_data.is_valid(raise_exception=True)
+        serialized_data.save()
+
         return Response(
-            {'detail': leads},
+            {'detail': 'found {} leads'.format(len(leads))},
             status.HTTP_200_OK
         )

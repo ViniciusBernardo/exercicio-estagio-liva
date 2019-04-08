@@ -64,4 +64,4 @@ def crawler_pipeline(gmail_service, id_list):
         leads.append(extract_info_from_html(html))
 
     format_lead_key_values(leads)
-    return filter(None, leads)
+    return list(filter(None, leads))
